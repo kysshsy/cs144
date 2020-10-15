@@ -67,8 +67,11 @@ class TCPConnection {
     //! Called when a new segment has been received from the network
     void segment_received(const TCPSegment &seg);
 
+<<<<<<< HEAD
     //! send segments in sender
     void send_segments();
+=======
+>>>>>>> CS144 Lab 4 assignment
     //! Called periodically when time elapses
     void tick(const size_t ms_since_last_tick);
 
@@ -82,9 +85,12 @@ class TCPConnection {
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering
     //! after both streams have finished (e.g. to ACK retransmissions from the peer)
     bool active() const;
+<<<<<<< HEAD
 
     void unclean_shutdown(bool active);
     void clean_shutdown();
+=======
+>>>>>>> CS144 Lab 4 assignment
     //!@}
 
     //! Construct a new connection from a configuration
