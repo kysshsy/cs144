@@ -17,8 +17,31 @@ void get_URL(const string &host, const string &path) {
     // (not just one call to read() -- everything) until you reach
     // the "eof" (end of file).
 
+    // use class Address ctor a target address
+
     cerr << "Function called: get_URL(" << host << ", " << path << ").\n";
-    cerr << "Warning: get_URL() has not been implemented yet.\n";
+
+    string service("http");
+    Address target(host, service);
+
+    TCPSocket server;
+
+    server.connect(target);
+
+    string method = "GET " + path + " HTTP/1.1\r\n";
+    string header = "Connection: close\r\nHost: cs144.keithw.org\r\n";
+    string spaceline = "\r\n";
+    string req = method + header + spaceline;
+
+    // send http request
+    server.write(req);
+
+    cout << req << endl;
+    string content;
+    while (!server.eof()) {
+        content = server.read();
+        cout << content;
+    }
 }
 
 int main(int argc, char *argv[]) {
