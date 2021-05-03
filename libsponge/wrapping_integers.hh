@@ -62,4 +62,8 @@ inline WrappingInt32 operator+(WrappingInt32 a, uint32_t b) { return WrappingInt
 inline WrappingInt32 operator-(WrappingInt32 a, uint32_t b) { return a + -b; }
 //!@}
 
+inline uint64_t distance(uint64_t a, uint64_t b) {
+  return (a > b) ? (a - b) : (b - a);
+}
+
 #endif  // SPONGE_LIBSPONGE_WRAPPING_INTEGERS_HH
