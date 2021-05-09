@@ -37,7 +37,7 @@ class TCPSender {
 
     // timeout
     unsigned int _retransmit_timeout;
-    
+
     std::optional<int64_t> _timeup;
 
     unsigned int _retransmits;
