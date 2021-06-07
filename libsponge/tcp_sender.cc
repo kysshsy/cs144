@@ -51,7 +51,6 @@ void TCPSender::fill_window() {
         int64_t window = (_sending >= window_size) ? 0 : window_size - _sending;
 
         window -= (newSeg.header().syn);
-        cout << "reading stream size " << _stream.buffer_size() << " window " << window << endl;
 
         if (window < 0)
             return;
@@ -70,9 +69,6 @@ void TCPSender::fill_window() {
             return;
 
         // send and save
-        cout << "send segment" << endl;
-        cout << newSeg.header().summary() << " size " << newSeg.payload().size() << endl;
-        cout << "cur window size: " << window << endl;
         _segments_out.push(newSeg);
         _sending += newSeg.length_in_sequence_space();
         _next_seqno += newSeg.length_in_sequence_space();
@@ -122,7 +118,6 @@ void TCPSender::tick(const size_t ms_since_last_tick) {
             _retransmits++;
             _retransmit_timeout *= 2;
         }
-        cout << "retransmit timeout: " << _retransmit_timeout << endl;
         _timeup = _retransmit_timeout;
     }
 }
