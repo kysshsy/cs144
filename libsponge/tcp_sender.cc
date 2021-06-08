@@ -90,7 +90,9 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
         uint64_t seg_seq = unwrap(seg.header().seqno, _isn, _next_seqno);
         if (seg_seq + seg.length_in_sequence_space() > ack_seqno)
             break;
-
+        else if (seg.header().syn == true && seg_seq + seg.length_in_sequence_space() < ack_seqno) { // SYN特殊情况
+            break;
+        }
         _sending -= seg.length_in_sequence_space();
         _outstanding.pop();
 
