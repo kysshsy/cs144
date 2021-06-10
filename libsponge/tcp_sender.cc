@@ -37,7 +37,9 @@ void TCPSender::fill_window() {
     if (_window_size == 0) {
         window_size = 1;
     }
-
+    if (!_outstanding.empty() && _outstanding.front().header().syn)
+        return;
+    
     while (_sending < window_size) {
         TCPSegment newSeg;
 
