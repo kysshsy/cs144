@@ -8,7 +8,7 @@
 // automated checks run by `make check`.
 
 template <typename... Targs>
-void DUMMY_CODE(Targs &&.../* unused */) {}
+void DUMMY_CODE(Targs &&... /* unused */) {}
 
 using namespace std;
 
@@ -51,7 +51,6 @@ void TCPConnection::unclean_shutdown(bool active) {
     _receiver.stream_out().set_error();
 
     if (active) {
-        
         _sender.send_empty_segment();
         TCPSegment &send_seg = _sender.segments_out().back();
         send_seg.header().rst = true;
@@ -89,7 +88,6 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
         if (_sender.next_seqno_absolute() > 0)
             _sender.fill_window();
     }
-    
 
     // 若没有segment
     if (seg.length_in_sequence_space() && _sender.segments_out().empty()) {
@@ -111,7 +109,6 @@ size_t TCPConnection::write(const string &data) {
 void TCPConnection::tick(const size_t ms_since_last_tick) {
     _since_last_receive += ms_since_last_tick;
     _sender.tick(ms_since_last_tick);
-
 
     if (_sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS) {
         unclean_shutdown(true);

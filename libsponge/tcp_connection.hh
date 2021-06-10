@@ -82,9 +82,9 @@ class TCPConnection {
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering
     //! after both streams have finished (e.g. to ACK retransmissions from the peer)
     bool active() const;
-    
+
     void unclean_shutdown(bool active);
-    void clean_shutdown();    
+    void clean_shutdown();
     //!@}
 
     //! Construct a new connection from a configuration
