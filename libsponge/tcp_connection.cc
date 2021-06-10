@@ -51,11 +51,12 @@ void TCPConnection::unclean_shutdown(bool active) {
     _receiver.stream_out().set_error();
 
     if (active) {
+        
         _sender.send_empty_segment();
         TCPSegment &send_seg = _sender.segments_out().back();
         send_seg.header().rst = true;
 
-        send_segments();
+        _segments_out.push(send_seg);
     }
 }
 
@@ -66,22 +67,29 @@ void TCPConnection::segment_received(const TCPSegment &seg) {
 
     // 解析seg
     // RST 包
-    cout << "log: " << seg.header().summary() << endl;
     _since_last_receive = 0;
 
     if (seg.header().rst) {
         // kill all
         unclean_shutdown(false);
+        return;
     }
+    //被动关闭connect
     if (seg.header().fin && !_sender.stream_in().eof()) {
         _active_close = false;
         _linger_after_streams_finish = false;
     }
     _receiver.segment_received(seg);
 
+    if (seg.header().syn) {
+        _sender.fill_window();
+    }
     if (seg.header().ack) {
         _sender.ack_received(seg.header().ackno, seg.header().win);
+        if (_sender.next_seqno_absolute() > 0)
+            _sender.fill_window();
     }
+    
 
     // 若没有segment
     if (seg.length_in_sequence_space() && _sender.segments_out().empty()) {
@@ -104,6 +112,7 @@ void TCPConnection::tick(const size_t ms_since_last_tick) {
     _since_last_receive += ms_since_last_tick;
     _sender.tick(ms_since_last_tick);
 
+
     if (_sender.consecutive_retransmissions() > TCPConfig::MAX_RETX_ATTEMPTS) {
         unclean_shutdown(true);
         return;
@@ -122,7 +131,7 @@ void TCPConnection::end_input_stream() {
 }
 
 void TCPConnection::connect() {
-
+    _active = true;
     _sender.fill_window();
     send_segments();
 }
