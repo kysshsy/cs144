@@ -9,10 +9,12 @@
 //! \brief A complete endpoint of a TCP connection
 class TCPConnection {
   private:
+    bool _active{true};
+    bool _active_close{true};
     TCPConfig _cfg;
     TCPReceiver _receiver{_cfg.recv_capacity};
     TCPSender _sender{_cfg.send_capacity, _cfg.rt_timeout, _cfg.fixed_isn};
-
+    size_t _since_last_receive{0};
     //! outbound queue of segments that the TCPConnection wants sent
     std::queue<TCPSegment> _segments_out{};
 
@@ -80,6 +82,9 @@ class TCPConnection {
     //! \returns `true` if either stream is still running or if the TCPConnection is lingering
     //! after both streams have finished (e.g. to ACK retransmissions from the peer)
     bool active() const;
+    
+    void unclean_shutdown(bool active);
+    void clean_shutdown();    
     //!@}
 
     //! Construct a new connection from a configuration
