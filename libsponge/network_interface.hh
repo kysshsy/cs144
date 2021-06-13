@@ -42,7 +42,7 @@ class NetworkInterface {
     //! outbound queue of Ethernet frames that the NetworkInterface wants sent
     std::queue<EthernetFrame> _frames_out{};
     // 保存未发送的frame
-    std::list<std::pair<InternetDatagram, Address>> _queue{};
+    std::unordered_map<uint32_t, std::list<std::pair<InternetDatagram, Address>>> _queue{};
     // 保存映射
     std::unordered_map<uint32_t, std::pair<EthernetAddress, int64_t>> _cache{};
 

@@ -63,7 +63,7 @@ void NetworkInterface::send_datagram(const InternetDatagram &dgram, const Addres
 
     // 没找到映射
     if (_cache.find(next_hop_ip) == _cache.end() || _cache[next_hop_ip].first == ETHERNET_BROADCAST) {
-        _queue.push_back(make_pair(dgram, next_hop));
+        _queue[next_hop_ip].push_back(make_pair(dgram, next_hop));
         // 发送ARP 请求
         if (_cache.find(next_hop_ip) == _cache.end()) {
             _cache[next_hop_ip] = {ETHERNET_BROADCAST, 1000 * 5};
@@ -102,17 +102,18 @@ optional<InternetDatagram> NetworkInterface::recv_frame(const EthernetFrame &fra
                 send_arp(false, arp.sender_ethernet_address, arp.sender_ip_address);
             }
         }
-
-        for (auto it = _queue.begin(); it != _queue.end();) {
-            if (_cache.find(it->second.ipv4_numeric()) == _cache.end()) {
-                // 发送 ARP请求
-                send_arp(true, ETHERNET_BROADCAST, it->second.ipv4_numeric());
-                it++;
-            } else if (_cache[it->second.ipv4_numeric()].first != ETHERNET_BROADCAST) {
-                send_datagram(it->first, it->second);
-                it = _queue.erase(it);
-            } else {
-                it++;
+        if (_queue.find(arp.sender_ip_address) != _queue.end()) {
+            for (auto it = _queue[arp.sender_ip_address].begin(); it != _queue[arp.sender_ip_address].end();) {
+                if (_cache.find(it->second.ipv4_numeric()) == _cache.end()) {
+                    // 发送 ARP请求
+                    send_arp(true, ETHERNET_BROADCAST, it->second.ipv4_numeric());
+                    it++;
+                } else if (_cache[it->second.ipv4_numeric()].first != ETHERNET_BROADCAST) {
+                    send_datagram(it->first, it->second);
+                    it = _queue[arp.sender_ip_address].erase(it);
+                } else {
+                    it++;
+                }
             }
         }
     }
@@ -121,7 +122,7 @@ optional<InternetDatagram> NetworkInterface::recv_frame(const EthernetFrame &fra
 
 //! \param[in] ms_since_last_tick the number of milliseconds since the last call to this method
 void NetworkInterface::tick(const size_t ms_since_last_tick) {
-    // 扫描_cache 若发现过期的地址 删除，若地址为broadcast地址，则重发ARP请求?
+    // 扫描_cache 若发现过期的地址 删除
     for (auto it = _cache.begin(); it != _cache.end();) {
         it->second.second = it->second.second - static_cast<int64_t>(ms_since_last_tick);
         if (it->second.second < 0) {

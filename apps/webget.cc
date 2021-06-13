@@ -24,7 +24,7 @@ void get_URL(const string &host, const string &path) {
     string service("http");
     Address target(host, service);
 
-    CS144TCPSocket server;
+    FullStackSocket server;
 
     server.connect(target);
 
