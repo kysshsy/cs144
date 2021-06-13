@@ -1,4 +1,4 @@
-#include "socket.hh"
+#include "tcp_sponge_socket.hh"
 #include "util.hh"
 
 #include <cstdlib>
@@ -24,7 +24,7 @@ void get_URL(const string &host, const string &path) {
     string service("http");
     Address target(host, service);
 
-    TCPSocket server;
+    CS144TCPSocket server;
 
     server.connect(target);
 
@@ -42,6 +42,7 @@ void get_URL(const string &host, const string &path) {
         content = server.read();
         cout << content;
     }
+    server.wait_until_closed();
 }
 
 int main(int argc, char *argv[]) {
