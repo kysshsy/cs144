@@ -3,9 +3,11 @@
 
 #include "network_interface.hh"
 
+#include <array>
+#include <list>
 #include <optional>
 #include <queue>
-
+#include <tuple>
 //! \brief A wrapper for NetworkInterface that makes the host-side
 //! interface asynchronous: instead of returning received datagrams
 //! immediately (from the `recv_frame` method), it stores them for
@@ -43,6 +45,7 @@ class AsyncNetworkInterface : public NetworkInterface {
 class Router {
     //! The router's collection of network interfaces
     std::vector<AsyncNetworkInterface> _interfaces{};
+    std::array<std::list<std::tuple<uint32_t, std::optional<Address>, size_t>>, sizeof(uint32_t) * 8 + 1> _rules{};
 
     //! Send a single datagram from the appropriate outbound interface to the next hop,
     //! as specified by the route with the longest prefix_length that matches the
